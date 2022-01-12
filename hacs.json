@@ -1,0 +1,6 @@
+{
+  "name": "Time Date DK",
+  "country": ["DK"],
+  "render_readme": true,
+  "domains": ["sensor"]
+}
