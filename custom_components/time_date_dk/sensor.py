@@ -241,7 +241,7 @@ class TimeDateSensor(SensorEntity):
 
 		self._adventsDates = self._getAdventsDates()
 
-		self._state = f'{ self._weekdayName} den { self._day }. { self._monthName } { self._year }'
+		self._state = f'{ self._weekdayName} den { self._day }. { self._monthName.lower() } { self._year }'
 
 	@callback
 	def point_in_time_listener(self, time_date):
