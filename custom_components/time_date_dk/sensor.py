@@ -12,6 +12,13 @@ import homeassistant.util.dt as dt_util
 import datetime as DT
 from datetime import timedelta
 
+from homeassistant.const import ATTR_ATTRIBUTION
+from .const import (
+	ATTRIBUTION,
+	DATE_FORMAT,
+	TIME_FORMAT,
+)
+
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,10 +28,9 @@ async def async_setup_platform(
 	async_add_entities: AddEntitiesCallback,
 	discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
-	async_add_entities([ExampleSensor(hass)])
+	async_add_entities([TimeDateSensor(hass)])
 
-class ExampleSensor(SensorEntity):
-	"""Representation of a sensor."""
+class TimeDateSensor(SensorEntity):
 
 	def __init__(self, hass) -> None:
 		"""Initialize the sensor."""
@@ -79,14 +85,23 @@ class ExampleSensor(SensorEntity):
 			day_TTS += ordinalNumbers[day[0] + "x"]
 			return day_TTS
 
-	def _getTime(self, format = '%H:%M:%S'):
+	def _getTime(self, format = None):
+		if format is None:
+			format = TIME_FORMAT
 		return self._dateObj.strftime(format)
 
-	def _getTime_TTS(self):
+	def _getTime_TTS(self, time = None):
 		timeNames = {0: "natten", 6: "morgenen", 9: "formiddagen", 12: "middagen", 14: "eftermiddagen", 18: "aftenen" }
-		H24 = self._getTime('%-H')
-		H12 = int(self._getTime('%-I'))
-		M = int(self._getTime('%-M'))
+
+		if time is None:
+			H24 = self._getTime('%-H')
+			H12 = int(self._getTime('%-I'))
+			M = int(self._getTime('%-M'))
+		else:
+			timeList = time.split(':')
+			H24 = int(timeList[0]) if int(timeList[0][0]) > 0 else int(timeList[0][1])
+			H12 = H24 - 12 if H24 > 12 else H24
+			M = int(timeList[1]) if int(timeList[1][0]) > 0 else int(timeList[1][1])
 
 		timeName = timeNames[min(timeNames, key=lambda x:abs(x-int(H24)))]
 		if M == 0:
@@ -106,14 +121,13 @@ class ExampleSensor(SensorEntity):
 
 	def _getAdventsDates(self):
 		adventDates = []
-		format = '%d-%m-%Y'
 		XmasDateObj = DT.datetime.strptime(str(self._year) + '-12-24 00:00:00', '%Y-%m-%d %H:%M:%S')
 		XmasDelta = 22 + XmasDateObj.weekday()
 
-		adventDates.append((XmasDateObj - timedelta(days = XmasDelta      )).strftime(format))
-		adventDates.append((XmasDateObj - timedelta(days = XmasDelta - 7  )).strftime(format))
-		adventDates.append((XmasDateObj - timedelta(days = XmasDelta - 14 )).strftime(format))
-		adventDates.append((XmasDateObj - timedelta(days = XmasDelta - 21 )).strftime(format))
+		adventDates.append((XmasDateObj - timedelta(days = XmasDelta      )).strftime(DATE_FORMAT))
+		adventDates.append((XmasDateObj - timedelta(days = XmasDelta - 7  )).strftime(DATE_FORMAT))
+		adventDates.append((XmasDateObj - timedelta(days = XmasDelta - 14 )).strftime(DATE_FORMAT))
+		adventDates.append((XmasDateObj - timedelta(days = XmasDelta - 21 )).strftime(DATE_FORMAT))
 
 		return adventDates
 
@@ -137,6 +151,8 @@ class ExampleSensor(SensorEntity):
 		# Prepare a dictionary with attributes
 		attr = {}
 
+		attr[ATTR_ATTRIBUTION] = ATTRIBUTION
+
 		attr['ts'] = self._ts
 		attr['day'] = self._day
 		attr['day_tts'] = self._day_TTS
@@ -154,10 +170,14 @@ class ExampleSensor(SensorEntity):
 		attr['weekday_name'] = self._weekdayName
 
 		attr['time'] = self._time
-		attr['time_hhmm'] = self._time_HHMM
 		attr['time_tts'] = self._time_TTS
 
 		attr['advents_dates'] = self._adventsDates
+
+		attr['sun_next_rising'] = self._sun_next_rising
+		attr['sun_next_rising_tts'] = self._sun_next_rising_tts
+		attr['sun_next_setting'] = self._sun_next_setting
+		attr['sun_next_setting_tts'] = self._sun_next_setting_tts
 
 		return attr
 
@@ -190,8 +210,19 @@ class ExampleSensor(SensorEntity):
 		self._ts = self._dateObj.timestamp()
 
 		self._day = self._dateObj.day
-
 		self._day_TTS = self._getDay_TTS()
+
+		sunTs = dt_util.as_timestamp(self.hass.states.get('sun.sun').attributes['next_rising'])
+		sunObj = dt_util.utc_from_timestamp(sunTs)
+		sunObj = dt_util.as_local(sunObj)
+		self._sun_next_rising = sunObj.strftime(TIME_FORMAT)
+		self._sun_next_rising_tts = self._getTime_TTS(self._sun_next_rising)
+
+		sunTs = dt_util.as_timestamp(self.hass.states.get('sun.sun').attributes['next_setting'])
+		sunObj = dt_util.utc_from_timestamp(sunTs)
+		sunObj = dt_util.as_local(sunObj)
+		self._sun_next_setting = sunObj.strftime(TIME_FORMAT)
+		self._sun_next_setting_tts = self._getTime_TTS(self._sun_next_setting)
 
 		self._monthNames =  ['Januar', 'Februar', 'Marts', 'April', 'Maj', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'December']
 		self._month = self._dateObj.month
@@ -206,7 +237,6 @@ class ExampleSensor(SensorEntity):
 		self._weekdayName = self._weekdayNameShort + 'dag'
 
 		self._time = self._getTime()
-		self._time_HHMM = self._getTime('%H:%M')
 		self._time_TTS = self._getTime_TTS()
 
 		self._adventsDates = self._getAdventsDates()
