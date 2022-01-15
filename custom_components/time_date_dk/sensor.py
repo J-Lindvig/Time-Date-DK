@@ -231,7 +231,7 @@ class TimeDateSensor(SensorEntity):
 		self._year = self._dateObj.year
 
 		self._weekNumber = self._dateObj.isocalendar()[1]
-		self._weekdaysShort = ['Man', 'Tirs', 'Ons', 'Tors', 'Fre', 'Lør']
+		self._weekdaysShort = ['Man', 'Tirs', 'Ons', 'Tors', 'Fre', 'Lør', 'Søn']
 		self._weekday = self._dateObj.weekday()
 		self._weekdayNameShort = self._weekdaysShort[self._weekday]
 		self._weekdayName = self._weekdayNameShort + 'dag'
