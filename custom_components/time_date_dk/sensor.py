@@ -16,8 +16,10 @@ from homeassistant.const import ATTR_ATTRIBUTION
 from .const import (
 	ATTRIBUTION,
 	DATE_FORMAT,
+	DOMAIN,
 	TIME_FORMAT,
 	UPDATE_INTERVAL,
+	UUID,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -141,7 +143,11 @@ class TimeDateSensor(SensorEntity):
 	@property
 	def name(self) -> str:
 		"""Return the name of the sensor."""
-		return 'time_date_dk'
+		return 'Time, date and more in Danish'
+
+	@property
+	def unique_id(self):
+		return DOMAIN + "_" + UUID 
 
 	@property
 	def native_value(self):
