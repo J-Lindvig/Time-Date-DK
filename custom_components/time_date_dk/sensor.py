@@ -141,7 +141,7 @@ class TimeDateSensor(SensorEntity):
 	@property
 	def name(self) -> str:
 		"""Return the name of the sensor."""
-		return 'Time, Date and other attributes in Danish'
+		return 'time_date_dk'
 
 	@property
 	def native_value(self):
