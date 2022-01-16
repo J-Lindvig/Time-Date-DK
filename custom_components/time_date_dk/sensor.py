@@ -94,7 +94,7 @@ class TimeDateSensor(SensorEntity):
 		timeNames = {0: "natten", 6: "morgenen", 9: "formiddagen", 12: "middagen", 14: "eftermiddagen", 18: "aftenen" }
 
 		if time is None:
-			H24 = self._getTime('%-H')
+			H24 = int(self._getTime('%-H'))
 			H12 = int(self._getTime('%-I'))
 			M = int(self._getTime('%-M'))
 		else:
@@ -103,7 +103,13 @@ class TimeDateSensor(SensorEntity):
 			H12 = H24 - 12 if H24 > 12 else H24
 			M = int(timeList[1]) if int(timeList[1][0]) > 0 else int(timeList[1][1])
 
-		timeName = timeNames[min(timeNames, key=lambda x:abs(x-int(H24)))]
+		timeName = ''
+		for hour, name in timeNames.items():
+			if H24 >= hour:
+				timeName = name
+			else:
+				break
+
 		if M == 0:
 			return f'{ H12 } om { timeName }'
 		elif M == 15:
