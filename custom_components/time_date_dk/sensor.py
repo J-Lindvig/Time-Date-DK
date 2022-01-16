@@ -17,6 +17,7 @@ from .const import (
 	ATTRIBUTION,
 	DATE_FORMAT,
 	TIME_FORMAT,
+	UPDATE_INTERVAL,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -140,7 +141,7 @@ class TimeDateSensor(SensorEntity):
 	@property
 	def name(self) -> str:
 		"""Return the name of the sensor."""
-		return 'time_date_dk'
+		return 'Time, Date and other attributes in Danish'
 
 	@property
 	def native_value(self):
@@ -204,7 +205,7 @@ class TimeDateSensor(SensorEntity):
 		now = dt_util.utcnow()
 
 		timestamp = dt_util.as_timestamp(now)
-		interval = 60
+		interval = UPDATE_INTERVAL
 
 		delta = interval - (timestamp % interval)
 		next_interval = now + timedelta(seconds=delta)
