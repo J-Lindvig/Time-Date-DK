@@ -177,6 +177,7 @@ class TimeDateSensor(SensorEntity):
 		attr['year'] = self._year
 
 		attr['weeknumber'] = self._weekNumber
+		attr['even_week'] = self._evenWeek
 		attr['weekday'] = int(self._weekday) + 1
 		attr['weekdays_names_short'] = self._weekdaysShort
 		attr['weekday_name_short'] = self._weekdayNameShort
@@ -244,6 +245,7 @@ class TimeDateSensor(SensorEntity):
 		self._year = self._dateObj.year
 
 		self._weekNumber = self._dateObj.isocalendar()[1]
+		self._evenWeek = int(self._weekNumber) % 2 == 0
 		self._weekdaysShort = ['Man', 'Tirs', 'Ons', 'Tors', 'Fre', 'Lør', 'Søn']
 		self._weekday = self._dateObj.weekday()
 		self._weekdayNameShort = self._weekdaysShort[self._weekday]
