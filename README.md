@@ -25,6 +25,7 @@ time_date_dk:
 | month_name                 | Januar                                    | Name of the current month          |
 | year                       | 2022                                      | Current year in 4 digits           |
 | weeknumber                 | 2                                         | Current weeknumber                 |
+| even_week                  | true                                      | Boolean stating even/odd weekno.   |
 | weekday                    | 7                                         | Current number of weekday          |
 | weekdays_names_short       | Man, Tirs, Ons, Tors, Fre, ...            | List of the weekdays in short form |
 | weekday_name_short         | Søn                                       | Name of the weekday in short form  |
